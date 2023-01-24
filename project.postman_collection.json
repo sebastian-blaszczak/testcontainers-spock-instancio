@@ -1,0 +1,101 @@
+{
+	"info": {
+		"_postman_id": "c8236bb1-c22c-40ab-b76a-db39ac643e57",
+		"name": "Testcontainers-Spock-instancio",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get item",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/item/get?name=name&description=description&ean=ean",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"item",
+						"get"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "name"
+						},
+						{
+							"key": "description",
+							"value": "description"
+						},
+						{
+							"key": "ean",
+							"value": "ean"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save item",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"name\",\n    \"ean\": \"0179657888498\",\n    \"price\": \"2.67\",\n    \"description\": \"description\",\n    \"type\": \"SHIRT\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/item/save",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"item",
+						"save"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Calculate price",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": [\n        {\n            \"id\": \"abda60a8-04c6-4b08-b6f5-09b77d3c0776\",\n            \"name\": \"name\",\n            \"ean\": \"0179657888498\",\n            \"price\": 3.37,\n            \"description\": \"description\",\n            \"type\": \"SHIRT\"\n        },\n        {\n            \"id\": \"e97cee82-74d2-436b-97cc-b20dcb81fe15\",\n            \"name\": \"name\",\n            \"ean\": \"0179657888498\",\n            \"price\": 7.68,\n            \"description\": \"description\",\n            \"type\": \"BELT\"\n        },\n        {\n            \"id\": \"e4a4bcce-4abf-48c8-9d92-e885ba262795\",\n            \"name\": \"name\",\n            \"ean\": \"0179657888498\",\n            \"price\": 5.17,\n            \"description\": \"description\",\n            \"type\": \"T_SHIRT\"\n        }\n    ],\n    \"code\":\"SPECIAL_CODE_15\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/price/calculate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"price",
+						"calculate"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
