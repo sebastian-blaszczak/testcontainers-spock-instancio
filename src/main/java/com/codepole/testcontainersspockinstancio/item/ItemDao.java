@@ -13,6 +13,7 @@ interface ItemDao extends CrudRepository<Item, String> {
                 request.ean());
     }
 
-    Optional<List<Item>> findByNameContainsAndDescriptionContainsAndEanContains(String name, String description,
+    Optional<List<Item>> findByNameContainsAndDescriptionContainsAndEanContains(String name,
+                                                                                String description,
                                                                                 String ean);
 }
