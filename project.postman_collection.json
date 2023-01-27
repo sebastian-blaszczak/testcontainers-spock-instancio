@@ -6,12 +6,12 @@
 	},
 	"item": [
 		{
-			"name": "Get item",
+			"name": "Search item",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/item/get?name=name&description=description&ean=ean",
+					"raw": "http://localhost:8080/item/search?query=name",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -19,20 +19,12 @@
 					"port": "8080",
 					"path": [
 						"item",
-						"get"
+						"search"
 					],
 					"query": [
 						{
-							"key": "name",
+							"key": "query",
 							"value": "name"
-						},
-						{
-							"key": "description",
-							"value": "description"
-						},
-						{
-							"key": "ean",
-							"value": "ean"
 						}
 					]
 				}

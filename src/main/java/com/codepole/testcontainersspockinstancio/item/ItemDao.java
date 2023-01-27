@@ -7,13 +7,9 @@ import java.util.Optional;
 
 interface ItemDao extends CrudRepository<Item, String> {
 
-    default Optional<List<Item>> findByRequest(ItemRequest request) {
-        return findByNameContainsAndDescriptionContainsAndEanContains(request.name(),
-                request.description(),
-                request.ean());
+    default Optional<List<Item>> findByQuery(ItemQuery query) {
+        return findByNameContainsOrDescriptionContains(query.value(), query.value());
     }
 
-    Optional<List<Item>> findByNameContainsAndDescriptionContainsAndEanContains(String name,
-                                                                                String description,
-                                                                                String ean);
+    Optional<List<Item>> findByNameContainsOrDescriptionContains(String name, String desc);
 }

@@ -17,7 +17,65 @@ class ItemDaoTest extends ElasticContainerSpec {
         properties.add("elastic.host", elasticsearch::getHttpHostAddress);
     }
 
-    def "test"() {
+    def "should properly save item"() {
+        given:
+        def item = Instancio.create(Item.class)
+
+        when:
+        def savedItem = itemDao.save(item)
+
+        then:
+        def foundItems = itemDao.findById(savedItem.id())
+        foundItems.isPresent()
+        foundItems.get() == savedItem
+    }
+
+    def "should properly find item by not exact name"() {
+        given:
+        def item = Instancio.create(Item.class)
+
+        and:
+        def savedItem = itemDao.save(item)
+
+        and:
+        def query = substring(item.name())
+
+        when:
+        def itemsFound = itemDao.findByQuery(new ItemQuery(query))
+
+        then:
+        itemsFound.isPresent()
+        itemsFound.get().stream()
+                .filter { it -> it.id() == savedItem.id() }
+                .allMatch { it -> it == savedItem }
+    }
+
+    def "should properly update item"() {
+        given:
+        def item = Instancio.create(Item.class)
+        def savedItem = itemDao.save(item)
+
+        and:
+        def newName = "new name"
+        def updatedItem = Item.builder()
+                .id(savedItem.id())
+                .name(newName)
+                .ean(savedItem.ean())
+                .price(savedItem.price())
+                .description(savedItem.description())
+                .type(savedItem.type())
+                .build()
+
+        when:
+        itemDao.save(updatedItem)
+
+        then:
+        def foundItems = itemDao.findById(updatedItem.id())
+        foundItems.isPresent()
+        foundItems.get().name() == newName
+    }
+
+    def " should properly delete item"() {
         given:
         def item = Instancio.create(Item.class)
 
@@ -25,15 +83,14 @@ class ItemDaoTest extends ElasticContainerSpec {
         def savedItem = itemDao.save(item)
 
         when:
-        def itemsFound = itemDao.findByRequest(ItemRequest.builder()
-                .name(item.name())
-                .description(item.description())
-                .ean(item.ean())
-                .build()
-        )
+        itemDao.delete(savedItem)
 
         then:
-        itemsFound.isPresent()
-        itemsFound.get().get(0) == savedItem
+        def foundItems = itemDao.findById(savedItem.id())
+        foundItems.isEmpty()
+    }
+
+    private String substring(String value) {
+        value.substring(0, value.length() - 3)
     }
 }
