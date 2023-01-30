@@ -189,4 +189,4 @@ def secondDelivery = Instancio.of(model)
 The best code to maintain is the one that not exists. This library helps reduce boilerplate code to absolute minimum
 and creating test data become fast and simple. If Your project has this problem, Instancio is one of the quick
 solutions for it. It also provides variety of ways for creating object, with custom modes of generating values. For more
-details check Instancio (documentation)[https://www.instancio.org/user-guide/].
+details check Instancio [documentation](https://www.instancio.org/user-guide/).
