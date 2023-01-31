@@ -10,7 +10,7 @@ import java.util.function.Supplier
 import static org.assertj.core.api.Assertions.assertThat
 import static org.instancio.Select.*
 
-class InstancioTest extends Specification {
+class InstancioSpecification extends Specification {
 
     def "create delivery item"() {
         given:

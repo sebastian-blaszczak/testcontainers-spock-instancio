@@ -8,7 +8,7 @@ import spock.lang.Specification
 import java.time.LocalDateTime
 import java.util.concurrent.ThreadLocalRandom
 
-class TraditionalDataTest extends Specification {
+class TraditionalDataSpecification extends Specification {
 
     def "create delivery item"() {
         given:
