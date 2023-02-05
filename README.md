@@ -20,7 +20,7 @@ mvn spring-boot:run
 Last step is optional, You can either import collection to Postman or use `curl` to communicate through API
 Postman collection is located in `project.postman_collection.json`
 
-## How to run test
+## How to test
 
 This is maven projest, so just simply run
 

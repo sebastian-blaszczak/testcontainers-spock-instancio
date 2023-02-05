@@ -167,7 +167,7 @@ language. For more details check Spock [documentation](https://spockframework.or
 
 # Instancio
 
-### Itroduction
+### Introduction
 
 One of the first thing, while creating tests, is preparing data. This part is crucial, because without it, we can't test
 anything. Unfortunately this huge part creates, a lot of boilerplate code. It is common to see huge amount of help
@@ -272,7 +272,7 @@ There is a lot of ways to create objects using this library, in this section wil
 might be useful in any project.
 
 The simplest way to build an object, is to use `create` static method. This allows as to create fully filled object with
-randomly generated data. Only thing is to provide type class as method parameter and Insatancio will do the magic for
+randomly generated data. Only thing is to provide type class as method parameter and Instancio will do the magic for
 us:
 
 ```groovy
@@ -348,7 +348,132 @@ details check Instancio [documentation](https://www.instancio.org/user-guide/).
 
 # Testcontainers
 
-TODO
+### Introduction
+
+Have You ever have problems with spinning up docker container in Your CI pipeline or ever wonder how could You simplify
+that process ? The answer for Yut problems is Testcontainers. This library can encapsulate everything related to docker
+container in Your test cases! It brings integration test on to another level, from now You don't have to mock services
+or use in-memory databases (such as H2 - which, in some cases, don't have all the features). It has a lot of use cases
+such as:
+
+- Providing real data layer,
+- Allows running acceptance test involving containerized web browsers,
+- Spining up cloud environment - LocalStack(AWS), Azurite or GCP emulators,
+- Delivering easy way to test dockerized microservices,
+- Anything You can think of - that has docker container
+
+### Features
+
+Testcontainers have already prepared some pre-defined modules, that You can use out of the box e.g.
+[mongoDB](https://www.testcontainers.org/modules/databases/mongodb/). There is a lot more of prepared modules,
+to check all of them You can go to [Testcontainers website](https://www.testcontainers.org/) and open `Modules` section.
+One note, to use this library make sure, that docker is up and running! Let's now spin some container:
+
+```groovy
+private NginxContainer nginx = new NginxContainer(DockerImageName.parse("nginx"))
+
+def "create nginx container"() {
+    given:
+    def port = nginx.firstMappedPort
+    def host = nginx.host
+    def getRequest = HttpRequest.newBuilder(URI.create("http://" + host + ":" + port))
+            .GET()
+            .build()
+    def client = HttpClient.newHttpClient()
+
+    when:
+    def response = client.send(getRequest, HttpResponse.BodyHandlers.ofString())
+
+    then:
+    response.body().contains("Welcome to nginx!")
+}
+```
+
+This is all it takes to spin up a docker container. Test specification above uses predefined module of Nginx, which
+simplify proces of setting up container. Testcontainers provide all kinds of feature that docker has, so if there is a
+need of creating custom network or mounting volumes, library provides that all:
+
+```groovy
+new NginxContainer(DockerImageName.parse("nginx"))
+        .withNetwork(Network.newNetwork())
+        .withNetworkAliases("nginx-network")
+        .withClasspathResourceMapping("hello-world.html",
+                "/usr/share/nginx/html/hello-world.html",
+                BindMode.READ_ONLY)
+```
+
+Using above container configuration, Testcontainers will create nginx server, with custom network called `nginx-network`
+and mount `hello-world.html` into static Nginx repository. It is possible to check all of that:
+
+```groovy
+def "check nginx network"() {
+    expect:
+    nginx.getNetworkAliases().contains("nginx-network")
+}
+```
+
+Nginx container should contain static resource on path `/hello-world.html`, let's check that also:
+
+```groovy
+def helloWorldFile = "hello-world.html"
+
+def "create nginx container with mounted volume"() {
+    given:
+    def port = nginx.firstMappedPort
+    def host = nginx.host
+    def getRequest = HttpRequest.newBuilder(URI.create("http://" + host + ":" + port + "/" + helloWorldFile))
+            .GET()
+            .build()
+    def client = HttpClient.newHttpClient()
+
+    when:
+    def response = client.send(getRequest, HttpResponse.BodyHandlers.ofString())
+
+    then:
+    response.body().contains("This content is served using Nginx.")
+}
+```
+
+Library provides possibility to check, what is going on inside container. This can be done using container log feature,
+this
+could be very helpful, when using custom containerized services - like, the ones, that was created as microservice in
+our project:
+
+```groovy
+def helloWorldFile = "hello-world.html"
+
+def "check nginx container logs"() {
+    given:
+    def port = nginx.firstMappedPort
+    def host = nginx.host
+    def getRequest = HttpRequest.newBuilder(URI.create("http://" + host + ":" + port + "/" + helloWorldFile))
+            .GET()
+            .build()
+    def client = HttpClient.newHttpClient()
+
+    and:
+    client.send(getRequest, HttpResponse.BodyHandlers.ofString())
+
+    when:
+    def logs = nginx.getLogs()
+
+    then:
+    logs.contains("GET /hello-world.html")
+}
+```
+
+### Why You should use it
+
+This library was created for providing easy and fast way to integrate with containers in test cases. This works
+perfectly,
+with all kinds of data layers (like DB) and external services. The main principle here is to be as close to production
+environment as possible, this could detect bugs on development level. Testcontainers creates opportunities to discover
+new things, and it simplifies way of experiment with them. The main problem here is time, it takes a while to spin up a
+container, and it takes even more time when we don't have docker image that we want to use (it has to download it
+first).
+It could be beneficially to creates test cases, that can re-use container. Another thing is to pre-download image in
+docker.
+Despite that, this is a powerful tool that can rise quality of Your code.
 
 # Real world example
 
@@ -362,6 +487,13 @@ proces
 and Testcontainers which in some integrations cases is irreplaceable. Those libraries can improve readability and make
 test
 proces a bit less boring. We also have shown that those tools can be used in real life project, so don't wait and give
-them a spin in Your next project.
+them a spin in Your next project. All examples and code for project You can find in
+this [repository](https://github.com/sebastian-blaszczak/testcontainers-spock-instancio).
 
 Happy coding!
+
+# Source
+
+- https://spockframework.org/spock/docs/2.3/all_in_one.html
+- https://www.instancio.org/user-guide/
+- https://www.testcontainers.org/quickstart/spock_quickstart/
