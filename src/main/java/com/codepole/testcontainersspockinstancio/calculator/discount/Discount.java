@@ -16,15 +16,14 @@ public interface Discount {
                 .orElse(0D);
     }
 
-    default Double multiplier(Double discount) {
+    default Double percentageMultiplier(Double discount) {
         return Optional.of(discount)
                 .filter(value -> value < 100)
-                .map(value -> 100 - value)
-                .map(value -> value / 100)
+                .map(value -> (100 - value) / 100)
                 .orElseThrow(IllegalArgumentException::new);
     }
 
     default Double priceWithDiscount(List<ItemDto> items, Double discount) {
-        return noDiscount(items) * multiplier(discount);
+        return noDiscount(items) * percentageMultiplier(discount);
     }
 }

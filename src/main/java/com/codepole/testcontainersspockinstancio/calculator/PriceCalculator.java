@@ -20,15 +20,21 @@ public class PriceCalculator {
     @Value("${discount.code}")
     private String discountCode;
 
+    @Value("${discount.code.value}")
+    private String discountCodeValue;
+
     @Value("${discount.item.type}")
     private String discountItemType;
+
+    @Value("${discount.item.value}")
+    private String discountItemTypeValue;
 
     private List<Discount> discounts;
 
     @PostConstruct
     private void initialize() {
-        discounts = List.of(new SpecialItemTypeDiscount(ItemType.valueOf(discountItemType)),
-                new CodeDiscount(discountCode));
+        discounts = List.of(new SpecialItemTypeDiscount(ItemType.valueOf(discountItemType), Double.valueOf(discountItemTypeValue)),
+                new CodeDiscount(discountCode, Double.valueOf(discountCodeValue)));
     }
 
     Optional<Double> calculate(List<ItemDto> items, String code) {

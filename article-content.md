@@ -465,19 +465,233 @@ def "check nginx container logs"() {
 ### Why You should use it
 
 This library was created for providing easy and fast way to integrate with containers in test cases. This works
-perfectly,
-with all kinds of data layers (like DB) and external services. The main principle here is to be as close to production
+perfectly, with all kinds of data layers (like DB) and external services. The main principle here is to be as close to
+production
 environment as possible, this could detect bugs on development level. Testcontainers creates opportunities to discover
 new things, and it simplifies way of experiment with them. The main problem here is time, it takes a while to spin up a
 container, and it takes even more time when we don't have docker image that we want to use (it has to download it
-first).
-It could be beneficially to creates test cases, that can re-use container. Another thing is to pre-download image in
-docker.
-Despite that, this is a powerful tool that can rise quality of Your code.
+first). It could be beneficially to creates test cases, that can re-use container. Another thing is to pre-download
+image in
+docker. Despite that, this is a powerful tool that can rise quality of Your code.
 
 # Real world example
 
-TODO
+Now, let's see how we can combine those 3 tools and use them in some real world example. Assume that we have some cloth
+shop and the owners wants to create shopping application. One of the features need to be search engine for products, it
+should have ability to quickly find items using full-text search. The suitable solution here, would be Elasticsearch.
+Client also want to create and apply some discounts with different politics e.g. using code or item based discounts.
+Let's create some code for those requirements:
+
+```java
+
+@Builder
+@Document(indexName = "item")
+public record Item(@Id String id,
+                   String name,
+                   String ean,
+                   Double price,
+                   String description,
+                   ItemType type) {
+}
+
+public enum ItemType {
+    T_SHIRT, SHIRT, TROUSERS, BELT, SOCKS
+}
+```
+
+We have just described how item should look like, now lets see how discounts may be defined:
+
+```java
+public interface Discount {
+
+    Double calculateDiscount(List<ItemDto> items, String code);
+
+    default Double noDiscount(List<ItemDto> items) {
+        return items.stream()
+                .map(ItemDto::price)
+                .reduce(Double::sum)
+                .orElse(0D);
+    }
+
+    default Double percentageMultiplier(Double discount) {
+        return Optional.of(discount)
+                .filter(value -> value < 100)
+                .map(value -> (100 - value) / 100)
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    default Double priceWithDiscount(List<ItemDto> items, Double discount) {
+        return noDiscount(items) * percentageMultiplier(discount);
+    }
+}
+
+@RequiredArgsConstructor
+public class CodeDiscount implements Discount {
+
+    private final String discountCode;
+    private final Double discount;
+
+    @Override
+    public Double calculateDiscount(List<ItemDto> items, String code) {
+        return codeMatches(code) ? priceWithDiscount(items, discount) : noDiscount(items);
+    }
+
+    private boolean codeMatches(String code) {
+        return code.equals(discountCode);
+    }
+}
+
+@RequiredArgsConstructor
+public class SpecialItemTypeDiscount implements Discount {
+
+    private final ItemType type;
+    private final Double discount;
+
+    @Override
+    public Double calculateDiscount(List<ItemDto> items, String code) {
+        return hasType(items, type) ? priceWithDiscount(items, discount) : noDiscount(items);
+    }
+
+    private boolean hasType(List<ItemDto> items, ItemType type) {
+        return items.stream()
+                .map(ItemDto::type)
+                .anyMatch(itemType -> itemType == type);
+    }
+
+}
+```
+
+Everything is set up, so now we can move to actual testing. We want to have tests as close as production environment, so
+we will not be satisfied using some in memory database for search testing. In this case Testcontainers becomes handy and
+on top of that, we don't want to create boilerplate code only for test purposes, so we can use Instancio in that matter:
+
+```groovy
+@Testcontainers
+class ElasticContainerSpec extends Specification {
+
+    static protected ElasticsearchContainer elasticsearch
+
+    def setupSpec() {
+        elasticsearch = new ElasticsearchContainer(DockerImageName
+                .parse("docker.elastic.co/elasticsearch/elasticsearch")
+                .withTag("7.17.8"))
+                .withExposedPorts(9200)
+        elasticsearch.start()
+    }
+}
+
+@SpringBootTest
+class ItemDaoTest extends ElasticContainerSpec {
+
+    @Autowired
+    ItemDao itemDao
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry properties) {
+        properties.add("elastic.host", elasticsearch::getHttpHostAddress)
+    }
+
+    def "should properly find item by partial name"() {
+        given:
+        def item = Instancio.create(Item.class)
+        def savedItem = itemDao.save(item)
+
+        and:
+        def query = substring(item.name())
+
+        when:
+        def itemsFound = itemDao.findByQuery(new ItemQuery(query))
+
+        then:
+        itemsFound.isPresent()
+        itemsFound.get().stream()
+                .filter { it -> it.id() == savedItem.id() }
+                .allMatch { it -> it == savedItem }
+    }
+}
+```
+
+In example above, we can see that, the Elasticsearch container configuration can be extracted to another class so
+specifications could be even more readable and free of unnecessary distraction. We are using the power of Instancio
+to create fully filled entity and Tescontainers give us possibility to test against actual elasticsearch instance.
+To see more examples You can check [other examples](). Now, we have confirmation that data layers works as it should be,
+let's test discount logic:
+
+```groovy
+@SpringBootTest(classes = PriceCalculator.class)
+class PriceCalculatorSpockTest extends Specification {
+
+    @Autowired
+    private PriceCalculator calculator
+
+    def "should properly calculate price based on input"() {
+        given:
+        def items = [
+                ItemDto.builder()
+                        .price(price)
+                        .type(type)
+                        .build()
+        ]
+
+        when:
+        def resultPrice = calculator.calculate(items, code)
+
+        then:
+        resultPrice.isPresent()
+        resultPrice.get() == afterDiscount
+
+        where:
+        type           | price | code              | afterDiscount
+        ItemType.SHIRT | 50D   | "SPECIAL_CODE_15" | 40D
+        ItemType.BELT  | 50D   | "WRONG_CODE"      | 45D
+        ItemType.SHIRT | 50D   | "WRONG_CODE"      | 50D
+        ItemType.SOCKS | 50D   | ""                | 50D
+    }
+}
+```
+
+All the cases are represented in a readable way and if we want to add another case, there would be no change of
+readability
+of the specification. To comparison here is a same test case written in JUnit:
+
+```java
+
+@SpringBootTest(classes = PriceCalculator.class)
+class PriceCalculatorTest {
+
+    @Autowired
+    private PriceCalculator calculator;
+
+    @ParameterizedTest
+    @CsvSource(
+            value = {
+                    "SHIRT, 50, SPECIAL_CODE_15, 40",
+                    "BELT, 50, WRONG_CODE, 45",
+                    "SHIRT, 50, WRONG_CODE, 50",
+                    "SOCKS, 50, {}, 50",
+            },
+            emptyValue = "{}")
+    void shouldProperlyCalculatePrice(ItemType type, Double price, String code, Double afterDiscount) {
+        // given
+        List<ItemDto> items = List.of(ItemDto.builder()
+                .price(price)
+                .type(type)
+                .build());
+
+        // when
+        Optional<Double> resultPrice = calculator.calculate(items, code);
+
+        // then
+        assertThat(resultPrice).isPresent().contains(afterDiscount);
+    }
+
+}
+```
+
+As You can see, data that is used in test cases is not so clear and adding new part of data can be tricky. All
+parameters
+are `Strings`, so we can pass there anything e.g. `TSHIRT` instead of `T_SHIRT`. The other problem is structure of, JUit
+don't track any block, so this is only good will of developer to keep test clean in Given-When-Then way.
 
 # Conclusion
 

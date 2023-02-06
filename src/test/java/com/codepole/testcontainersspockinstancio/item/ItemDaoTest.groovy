@@ -14,7 +14,7 @@ class ItemDaoTest extends ElasticContainerSpec {
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry properties) {
-        properties.add("elastic.host", elasticsearch::getHttpHostAddress);
+        properties.add("elastic.host", elasticsearch::getHttpHostAddress)
     }
 
     def "should properly save item"() {
@@ -30,11 +30,9 @@ class ItemDaoTest extends ElasticContainerSpec {
         foundItems.get() == savedItem
     }
 
-    def "should properly find item by not exact name"() {
+    def "should properly find item by partial name"() {
         given:
         def item = Instancio.create(Item.class)
-
-        and:
         def savedItem = itemDao.save(item)
 
         and:
@@ -90,7 +88,7 @@ class ItemDaoTest extends ElasticContainerSpec {
         foundItems.isEmpty()
     }
 
-    private String substring(String value) {
+    def substring(String value) {
         value.substring(0, value.length() - 3)
     }
 }

@@ -41,5 +41,4 @@ class PriceCalculatorTest {
         assertThat(resultPrice).isPresent().contains(afterDiscount);
     }
 
-
 }

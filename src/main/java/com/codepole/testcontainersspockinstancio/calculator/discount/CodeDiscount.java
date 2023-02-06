@@ -8,12 +8,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CodeDiscount implements Discount {
 
-    private static final Double DISCOUNT = 20D;
     private final String discountCode;
+    private final Double discount;
 
     @Override
     public Double calculateDiscount(List<ItemDto> items, String code) {
-        return codeMatches(code) ? priceWithDiscount(items, DISCOUNT) : noDiscount(items);
+        return codeMatches(code) ? priceWithDiscount(items, discount) : noDiscount(items);
     }
 
     private boolean codeMatches(String code) {
