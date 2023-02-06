@@ -1,5 +1,6 @@
 package com.codepole.demo.instancio
 
+
 import com.codepole.testcontainersspockinstancio.item.Item
 import org.instancio.Instancio
 import spock.lang.Specification
