@@ -1,22 +1,23 @@
-# Spock, Instancio and Testcontainers, 3 powerful testing tools
+# Spock, Instancio and Testcontainers - 3 powerful testing tools
 
-Today, automatic tests are indispensable part of every project (as it should always be). Good test cases can increase
-code quality and creates feeling that every thing works as it should be. They should be make in fast and reliable
-manner, it will encourage developers to run them as often as they can. In properly configured process, tests should
+Today, automatic tests are an indispensable part of every project (as they always should be). Good test cases can
+increase
+code quality and creates a feeling, that everything works as it should. They should be made in a fast and reliable
+manner, it will encourage developers to run them as often as they can. In a properly configured process, tests should
 run every time when something is changed in code, this will create some sort of guarantee, that we've just created
-something that actually works, as we expected. And Last, but no least, test cases give easy entry point to new code,
-especially when You have to refactor it. To make life a bit easier, there have been created tools to speed up creating
-test cases and here are some of them.
+something that actually works. And Last, but not least, test cases give an easy entry point to the code,
+especially, when You have to refactor it. To make life a bit easier, there have been created tools to speed up creating
+test cases, and here are some of them.
 
 # Spock
 
 ## Introduction
 
-Spock is tool for creating verbose and highly readable test cases. It uses JUnit runner, so it's accessible to
-all sorts of editing, building or CI tools. The best thing is that, Spock can be used for every JVM language. This
-framework has, a bit of different terminology from that are known in JUnit. Test classes are call `Specifications` and
-test methods are called `feature methods`, so to sum up everything, Spock introduces: "Specifications that describes
-features". It also provides an approach how feature methods should look like using Given-When-Then pattern:
+Spock is a tool for creating verbose and highly readable test cases. It uses JUnit runner, so it's accessible to
+all sorts of editing, building, or CI tools. The best thing is that Spock can be used for every JVM language. This
+framework has different terminology from that known in JUnit. Test classes are called `Specifications` and
+test methods are called `feature methods`, so to sum up, Spock introduces: "Specifications that describe
+features". It also provides an approach to how feature methods should look, using the Given-When-Then pattern:
 
 ```groovy
 def "exponentiation calculation"() {
@@ -32,17 +33,18 @@ def "exponentiation calculation"() {
 }
 ```
 
-In above example we can spot so-called blocks of feature method. Spock provides six blocks that could be used in feature
-methods: `given`, `when`, `then`, `expect`, `cleanup`, and `where`. Every block is pretty straightforward:
+In the above example, we can spot the so-called blocks of the feature method. Spock provides six blocks that could be
+used in
+there: `given`, `when`, `then`, `expect`, `cleanup`, and `where`. Every block is pretty straightforward:
 
-- given - block where local set up is done,
+- given - the block where local setup is done,
 - when - block defining test action,
-- then - here we can check all the conditions from when block,
-- expect - it acts like when-then block,
-- cleanup - place when we can clean all things that was created in feature method,
-- where - block for creating data driven tests
+- then - here we can check all the conditions from `when` block,
+- expect - acts like when-then block,
+- cleanup - a place where we can clean all things, that was created in the feature method,
+- where - block for creating data-driven tests
 
-Now, feature method can be rewritten in another, data-driven way:
+Now, the feature method can be rewritten in another, data-driven way:
 
 ```groovy
 def "data driven exponentiation calculation"() {
@@ -57,8 +59,9 @@ def "data driven exponentiation calculation"() {
 }
 ```
 
-Same test can be written in JUnit, using `@ParametrizedTest`, but it is far less readable and format of method is not
-kept by framework:
+The same test can be written in JUnit, using `@ParametrizedTest`, but it is far less readable, and the format of the
+method
+is not kept by the framework:
 
 ```java
 @ParameterizedTest
@@ -82,23 +85,23 @@ void dataDrivenExponentiationCalculation(Integer base,Integer exponent,Double ex
 Every specification can be divided into a couple of parts. Not all the parts are required, the final shape depends on
 specific case:
 
-- `field part` - place when we can define all the global variables that can be accessed in every feature method,
+- `field part` - place where we can define all the global variables, that can be accessed in every feature method,
 
-- `fixture methods` - part where specification is set up. Here we can use:
-    - `setup()` - setup that runs before every feature method - JUnit @Before,
-    - `setupSpec()` - setup that runs before all feature methods - JUnit @BeforeAll,
-    - `cleanup()` - clean methods that runs after every feature method - JUnit @After,
-    - `cleanupSpec()` - clean method that runs after all feature methods - JUnit @AfterAll
+- `fixture methods` - the part where a specification is set up. Spock has pre-defined methods:
+    - `setup()` - a setup that runs before every feature method - JUnit @Before,
+    - `setupSpec()` - a setup that runs before all feature methods - JUnit @BeforeAll,
+    - `cleanup()` - cleaning that runs after every feature method - JUnit @After,
+    - `cleanupSpec()` - cleaning that runs after all feature methods - JUnit @AfterAll
 
-- `feature methods` - part when we define the test cases, this is a core of specification. Those methods will be used to
-  check the system
-  behavior,
+- `feature methods` - the part where we define the test cases, this is a core of specification. Those methods will be
+  used
+  to
+  check the system behavior,
 
-- `helper methods` - here we can define all the methods that helps feature methods to be more readable. It is also
-  common to extract here
-  code that is duplicated across the feature methods.
+- `helper methods` - here we can define all the methods that help feature methods to be more readable. It is also
+  common to extract code that is duplicated across the feature methods.
 
-Framework provides variety of tools that can be used in mocking and interaction based testing without any additional
+Framework provides a variety of tools that can be used in mocking and interaction-based testing, without any additional
 libraries. Here is an example:
 
 ```java
@@ -115,7 +118,7 @@ public class ListWrapper {
 }
 ```
 
-Now we can create feature method that mocks nested list and check how many times method `add` will be invoked:
+Now we can create a feature method that mocks nested lists and check how many times the method `add` is invoked:
 
 ```groovy
  def "interaction based test"() {
@@ -131,7 +134,7 @@ Now we can create feature method that mocks nested list and check how many times
 }
 ```
 
-We can go event further and creates a variety of use cases:
+We can go even further and creates a variety of use cases:
 
 ```groovy
 def "multiple interaction with wrapper"() {
@@ -153,25 +156,27 @@ def "multiple interaction with wrapper"() {
 }
 ```
 
-This example shows, how we can handle conditions of invocation. Character `_` means any value, sometime it is needed to
-specify of type, then we have to use key word `as`. We can specify inclusive range of invocation using round backers. We
-can also specify custom condition how input of a method should look like. One note here, in example above Spock removes
-invocation after each usage, so we can't use all conditions in one feature
-method.
+This example shows, how we can handle conditions of invocation. Character `_` means any value. Sometimes it is needed to
+specify of type, then we have to use the keyword `as`. We can specify an inclusive range of invocation using round
+brackets.
+It is also possible to specify custom conditions, and how the input of a method should look like. One note here, in the
+example above
+Spock removes invocation after each usage, so we can't use all showed conditions in one feature method.
 
 ### Why You should use it
 
-This framework provides all the features that can be found in JUnit, but it delivers in more accessible and readable
-way. It works perfectly in data driven tests, and it works straight away in projects that are written in one of JVM
-language. For more details check Spock [documentation](https://spockframework.org/spock/docs/2.3/all_in_one.html).
+This framework provides all the features that can be found in JUnit, but it delivers in a more accessible and readable
+way. It works perfectly in data-driven tests, and it runs straight away in projects that are written in one of JVM
+languages. For more details check Spock [documentation](https://spockframework.org/spock/docs/2.3/all_in_one.html).
 
 # Instancio
 
 ### Introduction
 
-One of the first thing, while creating tests, is preparing data. This part is crucial, because without it, we can't test
-anything. Unfortunately this huge part creates, a lot of boilerplate code. It is common to see huge amount of help
-methods or even classes that are designed only for providing generated object for test purposes. Consider this two
+One of the first things, while creating tests, is preparing data. This part is crucial because, without it, we can't
+test
+anything. Unfortunately, this part creates, a lot of boilerplate code. It is common to see a huge amount of helper
+methods or even classes that are designed only for providing a generated object for test purposes. Consider these two
 classes:
 
 ```java
@@ -184,8 +189,6 @@ public record Item(String id,
 }
 ```
 
-and
-
 ```java
 record DeliveryItem(String id,
                     String code,
@@ -195,7 +198,7 @@ record DeliveryItem(String id,
 }
 ```
 
-Let's create simple test that only creates `DeliveryItem` object:
+Let's create a simple test that only creates `DeliveryItem` object:
 
 ```groovy
 def "create delivery item"() {
@@ -211,7 +214,7 @@ def "create delivery item"() {
 }
 ```
 
-This looks alright, isn't it ? but wait, let's see how metod `createDeliveryItem` looks like.
+This is fine, isn't it? but wait, let's see how method `createDeliveryItem` looks like:
 
 ```groovy
 private def createDeliveryItem() {
@@ -243,11 +246,12 @@ private def generateType() {
 private final ThreadLocalRandom random = ThreadLocalRandom.current()
 ```
 
-In this case, it is required to create three help methods, that only creates one test object. Now, let's image
-that `Item` needs to have another field called `category` and `DeliveryItem` should have `address`. This triggers
-changes
-in those 2 help methods and probably will create another one. To handle this sort of problems, Instancio library was
-created. To make and example, let's see how this test will look like, when the power of Instancio is used.
+In this case, it is required to create three helper methods, that only create one test object. Now, let's imagine
+that `Item` have to have another field called `category` and the field `DeliveryItem` should have `address`. This
+triggers changes
+in those 2 helper methods and probably will create another one. Instancio library was created, to handle this sort of
+problem.
+For instance, let's see how this test will look like when the power of Instancio is used:
 
 ```groovy
 def "create delivery item"() {
@@ -263,25 +267,25 @@ def "create delivery item"() {
 }
 ```
 
-Looks similar, right ? The main difference is that, the help methods not exists in this approach. The best thing is, if
-something will change in those classes, it will not break the test case.
+Looks similar, right? The main difference is that the helper methods have gone. The best thing is, if
+something will change in domain classes, it will not break the test case.
 
 ### Features
 
-There is a lot of ways to create objects using this library, in this section will be provided some features, that
+There are a lot of ways to create objects using this library, this section will be provided some features, that
 might be useful in any project.
 
-The simplest way to build an object, is to use `create` static method. This allows as to create fully filled object with
-randomly generated data. Only thing is to provide type class as method parameter and Instancio will do the magic for
+The simplest way to build an object is to use `create` static method. This allows us to create a filled object with
+randomly generated data. Only thing is to provide a type class as a method parameter and Instancio will do the magic for
 us:
 
 ```groovy
 def item = Instancio.create(Item.class)
 ```
 
-Instancio gives a lot of possibilities to manipulate data. One of the methods is `set`, in example below, Instancio
-will set all `String` fields (also in nested objects) as `string-value`. Best thing is that, documentation says "The
-allXxx() methods such as allInts(), are available for all core types.":
+Instancio brings a lot of possibilities to manipulate data. One of the methods is `set`, in the example below, Instancio
+will set all `String` fields (also in nested objects) as `string-value`. The documentation says "The
+allXxx() methods such as allInts(), are available for all core types.", it has a lot of predefined methods:
 
 ```groovy
 def stringValues = Instancio.of(Item.class)
@@ -289,7 +293,7 @@ def stringValues = Instancio.of(Item.class)
         .create()
 ```
 
-Library provides also ability to sets only a specific field:
+The library provides also the ability to sets only a specific field:
 
 ```groovy
 def withField = Instancio.of(Item.class)
@@ -297,7 +301,7 @@ def withField = Instancio.of(Item.class)
         .create()
 ```
 
-Using `generate` method it is possible to provide, own generate algorithm, for example number from range 1-50:
+We can define a custom generate algorithm using `generate` method. For instance a number in the range of 1-50:
 
 ```groovy
 def generatedValue = Instancio.of(Item.class)
@@ -305,9 +309,11 @@ def generatedValue = Instancio.of(Item.class)
         .create()
 ```
 
-In library, we can find two similar methods `set` and `supply`. The `set` method allows setting static value to the
-object. The `supply` method will create new instance of value when setting fields. So in example below, all string will
-have value `same-string`, but all the dates will differ from each-other:
+In the library, we can find two similar methods `set` and `supply`. The `set` method allows setting the static value to
+the
+object. On the other hand, `supply` method will create a new instance of value when setting fields. So in the example
+below, all strings will
+have the same value `same-string`, but all the dates will differ from each other:
 
 ```groovy
 def setSupply = Instancio.of(DeliveryItem.class)
@@ -316,7 +322,8 @@ def setSupply = Instancio.of(DeliveryItem.class)
         .create()
 ```
 
-Instancio gives powerful tool called `model`. It is a convenient way of defining objects that have common core, so that
+Instancio gives a powerful tool called `model`. It is a convenient way of defining objects that have a common core, so
+that
 can be defined in one place and re-used for all other objects:
 
 ```groovy
@@ -327,7 +334,8 @@ def model = Instancio.of(DeliveryItem.class)
         .toModel()
 ```
 
-Using model defined above, Instancio allows to create two object with same delivery fields and different items objects:
+Using the model defined above, Instancio allows the creation two objects with the same delivery fields and different
+items objects:
 
 ```groovy
 def firstDelivery = Instancio.of(model)
@@ -341,10 +349,12 @@ def secondDelivery = Instancio.of(model)
 
 ### Why You should use it
 
-The best code to maintain is the one that not exists. This library helps reduce boilerplate code to absolute minimum
-and creating test data become fast and simple. If Your project has this problem, Instancio is one of the quick
-solutions for it. It also provides variety of ways for creating object, with custom modes of generating values. For more
-details check Instancio [documentation](https://www.instancio.org/user-guide/).
+The best code to maintain is the one that not exists. This library helps reduce boilerplate code to an absolute minimum
+and makes the process of creating test data, fast and simple. If Your project has a lot of useless code, Instancio is
+one of
+the quick solutions for it. It also provides a variety of ways for creating an object, with custom modes of generating
+values.
+For more details check Instancio [documentation](https://www.instancio.org/user-guide/).
 
 # Testcontainers
 
@@ -472,7 +482,8 @@ new things, and it simplifies way of experiment with them. The main problem here
 container, and it takes even more time when we don't have docker image that we want to use (it has to download it
 first). It could be beneficially to creates test cases, that can re-use container. Another thing is to pre-download
 image in
-docker. Despite that, this is a powerful tool that can rise quality of Your code.
+docker. Despite that, this is a powerful tool that can rise quality of Your code. For more details check
+Testcontainers [documentation](https://www.testcontainers.org/quickstart/spock_quickstart/).
 
 # Real world example
 
@@ -613,7 +624,7 @@ class ItemDaoTest extends ElasticContainerSpec {
 
 In example above, we can see that, the Elasticsearch container configuration can be extracted to another class so
 specifications could be even more readable and free of unnecessary distraction. We are using the power of Instancio
-to create fully filled entity and Tescontainers give us possibility to test against actual elasticsearch instance.
+to create fully filled entity and Testcontainers give us possibility to test against actual elasticsearch instance.
 To see more examples You can check [other examples](). Now, we have confirmation that data layers works as it should be,
 let's test discount logic:
 
