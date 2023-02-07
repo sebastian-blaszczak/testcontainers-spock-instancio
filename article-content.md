@@ -360,24 +360,27 @@ For more details check Instancio [documentation](https://www.instancio.org/user-
 
 ### Introduction
 
-Have You ever have problems with spinning up docker container in Your CI pipeline or ever wonder how could You simplify
-that process ? The answer for Yut problems is Testcontainers. This library can encapsulate everything related to docker
-container in Your test cases! It brings integration test on to another level, from now You don't have to mock services
+Have You ever had problems with spinning up the Docker container in Your CI pipeline or ever wonder how could You
+simplify
+that process? The answer to Your problem is Testcontainers. This library can encapsulate everything related to the
+Docker
+containers in Your test cases! It brings integration tests to another level, from now You don't have to mock services
 or use in-memory databases (such as H2 - which, in some cases, don't have all the features). It has a lot of use cases
 such as:
 
 - Providing real data layer,
-- Allows running acceptance test involving containerized web browsers,
-- Spining up cloud environment - LocalStack(AWS), Azurite or GCP emulators,
-- Delivering easy way to test dockerized microservices,
-- Anything You can think of - that has docker container
+- Allows running acceptance tests involving containerized web browsers,
+- Spinning up cloud environment - LocalStack(AWS), Azurite or GCP emulators,
+- Delivering an easy way to test Dockerized microservices,
+- Anything You can think of - that has a Docker container
 
 ### Features
 
 Testcontainers have already prepared some pre-defined modules, that You can use out of the box e.g.
-[mongoDB](https://www.testcontainers.org/modules/databases/mongodb/). There is a lot more of prepared modules,
-to check all of them You can go to [Testcontainers website](https://www.testcontainers.org/) and open `Modules` section.
-One note, to use this library make sure, that docker is up and running! Let's now spin some container:
+[mongoDB](https://www.testcontainers.org/modules/databases/mongodb/). There are a lot more prepared modules,
+to check all of them, You can go to [Testcontainers website](https://www.testcontainers.org/) and open `Modules`
+section.
+One note, to use this library make sure, that the Docker service is up and running! Let's now spin some containers:
 
 ```groovy
 private NginxContainer nginx = new NginxContainer(DockerImageName.parse("nginx"))
@@ -399,9 +402,11 @@ def "create nginx container"() {
 }
 ```
 
-This is all it takes to spin up a docker container. Test specification above uses predefined module of Nginx, which
-simplify proces of setting up container. Testcontainers provide all kinds of feature that docker has, so if there is a
-need of creating custom network or mounting volumes, library provides that all:
+This is all it takes to spin up a Docker container. The test specification above uses a predefined module of Nginx,
+which
+simplify the process of setting up a container. Testcontainers provide all kinds of features that Docker has, so if
+there is a
+need of creating a custom network or mounting volumes, the library provides all:
 
 ```groovy
 new NginxContainer(DockerImageName.parse("nginx"))
@@ -412,8 +417,9 @@ new NginxContainer(DockerImageName.parse("nginx"))
                 BindMode.READ_ONLY)
 ```
 
-Using above container configuration, Testcontainers will create nginx server, with custom network called `nginx-network`
-and mount `hello-world.html` into static Nginx repository. It is possible to check all of that:
+Using the above container configuration, Testcontainers will create nginx server, with a custom network
+called `nginx-network`
+and mount `hello-world.html` into a static Nginx repository. It is possible to check all of that:
 
 ```groovy
 def "check nginx network"() {
@@ -444,9 +450,9 @@ def "create nginx container with mounted volume"() {
 }
 ```
 
-Library provides possibility to check, what is going on inside container. This can be done using container log feature,
-this
-could be very helpful, when using custom containerized services - like, the ones, that was created as microservice in
+Library provides a possibility to check, what is going on inside the container. This can be done using the container log
+feature,
+it could be very helpful when using custom containerized services - like, the ones, that were created as microservice in
 our project:
 
 ```groovy
@@ -474,24 +480,28 @@ def "check nginx container logs"() {
 
 ### Why You should use it
 
-This library was created for providing easy and fast way to integrate with containers in test cases. This works
+This library was created for providing an easy and fast way to integrate with containers in test cases. It works
 perfectly, with all kinds of data layers (like DB) and external services. The main principle here is to be as close to
-production
-environment as possible, this could detect bugs on development level. Testcontainers creates opportunities to discover
-new things, and it simplifies way of experiment with them. The main problem here is time, it takes a while to spin up a
-container, and it takes even more time when we don't have docker image that we want to use (it has to download it
-first). It could be beneficially to creates test cases, that can re-use container. Another thing is to pre-download
-image in
-docker. Despite that, this is a powerful tool that can rise quality of Your code. For more details check
+the production environment as possible. It could detect bugs on the development level. Testcontainers create
+opportunities to discover
+new things, and it simplifies the way of experimenting with them. The main problem here is time. It takes a while to
+spin up a
+container, and even more when we don't have the downloaded Docker image that we want to use (it has to download
+first). It could be beneficial to create test cases, that can re-use running containers. Another thing is to
+pre-download
+Docker image. Despite that, this is a powerful tool that can rise the quality of Your code. For more details check
 Testcontainers [documentation](https://www.testcontainers.org/quickstart/spock_quickstart/).
 
 # Real world example
 
-Now, let's see how we can combine those 3 tools and use them in some real world example. Assume that we have some cloth
-shop and the owners wants to create shopping application. One of the features need to be search engine for products, it
-should have ability to quickly find items using full-text search. The suitable solution here, would be Elasticsearch.
-Client also want to create and apply some discounts with different politics e.g. using code or item based discounts.
-Let's create some code for those requirements:
+Now, let's see how we can combine those 3 tools and use them in some real-world example. Assume that we have a
+clothing shop and the owners want to create an application for it. One of the features that need to be done is a search
+engine
+for products. It should have the ability to quickly find items using a full-text search. The suitable solution here
+would be Elasticsearch.
+The client also wants to create some discounts with different politics e.g. using code or item-based discounts.
+If there are two applicable discounts, the service should take the one with the lowest price. Let's create some code for
+those requirements:
 
 ```java
 
@@ -510,7 +520,7 @@ public enum ItemType {
 }
 ```
 
-We have just described how item should look like, now lets see how discounts may be defined:
+We have just described how an item should look like, now let's see how discounts may be defined:
 
 ```java
 public interface Discount {
@@ -572,9 +582,10 @@ public class SpecialItemTypeDiscount implements Discount {
 }
 ```
 
-Everything is set up, so now we can move to actual testing. We want to have tests as close as production environment, so
-we will not be satisfied using some in memory database for search testing. In this case Testcontainers becomes handy and
-on top of that, we don't want to create boilerplate code only for test purposes, so we can use Instancio in that matter:
+Everything is set up, so now we can move to actual testing. Our goal is to create a similar test environment to the
+production one, so
+we won't be satisfied using some in-memory database for search testing. In this case, Testcontainers becomes handy and
+on top of that, we don't have to create boilerplate code only for test purposes, so we can use Instancio in that matter:
 
 ```groovy
 @Testcontainers
@@ -622,11 +633,12 @@ class ItemDaoTest extends ElasticContainerSpec {
 }
 ```
 
-In example above, we can see that, the Elasticsearch container configuration can be extracted to another class so
-specifications could be even more readable and free of unnecessary distraction. We are using the power of Instancio
-to create fully filled entity and Testcontainers give us possibility to test against actual elasticsearch instance.
-To see more examples You can check [other examples](). Now, we have confirmation that data layers works as it should be,
-let's test discount logic:
+In the example above, we can see that the Elasticsearch container configuration can be extracted to another class, so
+specifications could be even more readable and free of unnecessary distractions. We are using the power of Instancio
+to create a filled entity and Testcontainers give us the possibility to test against an actual Elasticsearch instance.
+To see more examples You can
+check [this](https://github.com/sebastian-blaszczak/testcontainers-spock-instancio/blob/master/src/test/groovy/com/codepole/testcontainersspockinstancio/item/ItemDaoTest.groovy).
+Now, we have confirmation that data layers work as it should, let's test discount logic:
 
 ```groovy
 @SpringBootTest(classes = PriceCalculator.class)
@@ -661,9 +673,7 @@ class PriceCalculatorSpockTest extends Specification {
 }
 ```
 
-All the cases are represented in a readable way and if we want to add another case, there would be no change of
-readability
-of the specification. To comparison here is a same test case written in JUnit:
+To comparison here is the same test case written in JUnit:
 
 ```java
 
@@ -699,20 +709,22 @@ class PriceCalculatorTest {
 }
 ```
 
-As You can see, data that is used in test cases is not so clear and adding new part of data can be tricky. All
+As You can see, the data that is used in this test case is not clear, and adding a new portion of data can be tricky.
+All
 parameters
-are `Strings`, so we can pass there anything e.g. `TSHIRT` instead of `T_SHIRT`. The other problem is structure of, JUit
-don't track any block, so this is only good will of developer to keep test clean in Given-When-Then way.
+are `Strings`, so we can pass there anything e.g. `TSHIRT` instead of `T_SHIRT`. The other problem is the structure of,
+JUit
+don't track any blocks, this is only the goodwill of the developer to keep tests clean in the Given-When-Then way.
 
 # Conclusion
 
-In this article we have shown three powerful tools that can leverage code testing to another level. Spock framework that
-was created to be as close to verbose test case setup as possible, Instancio that can speed up preparation of test
-proces
+In this article, we have shown three powerful tools that can leverage code testing to another level. Spock framework
+that
+was created to be more verbose and readable, Instancio that can speed up the preparation of tests
 and Testcontainers which in some integrations cases is irreplaceable. Those libraries can improve readability and make
 test
-proces a bit less boring. We also have shown that those tools can be used in real life project, so don't wait and give
-them a spin in Your next project. All examples and code for project You can find in
+process a bit less boring. It is also shown that those tools can be used in a real-life project, so why wait and give
+them a spin in Your next project? All examples and code for the project You can find in
 this [repository](https://github.com/sebastian-blaszczak/testcontainers-spock-instancio).
 
 Happy coding!
