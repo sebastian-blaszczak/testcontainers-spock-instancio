@@ -583,9 +583,9 @@ public class SpecialItemTypeDiscount implements Discount {
 ```
 
 Everything is set up, so now we can move to actual testing. Our goal is to create a similar test environment to the
-production one, so
-we won't be satisfied using some in-memory database for search testing. In this case, Testcontainers becomes handy and
-on top of that, we don't have to create boilerplate code only for test purposes, so we can use Instancio in that matter:
+production one, so we won't be satisfied using some in-memory database for search testing. In this case, Testcontainers
+becomes handy and on top of that, we don't have to create boilerplate code only for test purposes, so we can use
+Instancio in that matter:
 
 ```groovy
 @Testcontainers
