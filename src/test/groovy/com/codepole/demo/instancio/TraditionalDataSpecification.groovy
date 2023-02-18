@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom
 
 class TraditionalDataSpecification extends Specification {
 
-    def "create delivery item"() {
+    def "should create delivery item"() {
         given:
         def delivery = createDeliveryItem()
 

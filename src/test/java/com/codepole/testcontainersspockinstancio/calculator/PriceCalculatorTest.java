@@ -27,7 +27,7 @@ class PriceCalculatorTest {
                     "SOCKS, 50, {}, 50",
             },
             emptyValue = "{}")
-    void shouldProperlyCalculatePrice(ItemType type, Double price, String code, Double afterDiscount) {
+    void shouldCalculatePrice(ItemType type, Double price, String code, Double afterDiscount) {
         // given
         List<ItemDto> items = List.of(ItemDto.builder()
                 .price(price)

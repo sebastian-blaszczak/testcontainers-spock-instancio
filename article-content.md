@@ -20,7 +20,7 @@ test methods are called `feature methods`, so to sum up, Spock introduces: "Spec
 features". It also provides an approach to how feature methods should look, using the Given-When-Then pattern:
 
 ```groovy
-def "exponentiation calculation"() {
+def "should calculate power of two numbers"() {
     given:
     def base = 2
     def exponent = 3
@@ -47,7 +47,7 @@ there: `given`, `when`, `then`, `expect`, `cleanup`, and `where`. Every block is
 Now, the feature method can be rewritten in another, data-driven way:
 
 ```groovy
-def "data driven exponentiation calculation"() {
+def "should calculate power of two numbers using data driven approach"() {
     expect:
     result == Math.pow(base, exponent)
 
@@ -71,7 +71,7 @@ is not kept by the framework:
                 "5, 2, 25",
                 "6, 3, 216"
         })
-void dataDrivenExponentiationCalculation(Integer base,Integer exponent,Double expected){
+void shouldCalculateThePowerOfTwoNumbers(Integer base,Integer exponent,Double expected){
         // expect
         double result=Math.pow(base,exponent);
 
@@ -106,68 +106,99 @@ libraries. Here is an example:
 
 ```java
 
-@Getter
-@AllArgsConstructor
-public class ListWrapper {
+@RequiredArgsConstructor
+public class Service {
 
-    private List<String> value;
+    private final Repository repository;
 
-    public void add(String item) {
-        value.add(item);
+    public void saveItem(String item) {
+        repository.save(item);
+    }
+
+}
+
+public class Repository {
+
+    List<String> items = new ArrayList<>();
+
+    public void save(String item) {
+        items.add(item);
     }
 }
 ```
 
-Now we can create a feature method that mocks nested lists and check how many times the method `add` is invoked:
+Now we can create a feature method that mocks repository and check how many times the method `save` is invoked:
 
 ```groovy
- def "interaction based test"() {
+def "should repository interact once on save"() {
     given:
-    List<String> list = Mock()
-    def wrapper = new ListWrapper(list)
+    Repository repository = Mock()
+    def service = new Service(repository)
 
     when:
-    wrapper.add("item")
+    service.saveItem("item")
 
     then:
-    1 * list.add("item")
+    1 * repository.save("item")
 }
 ```
 
 We can go even further and creates a variety of use cases:
 
 ```groovy
-def "multiple interaction with wrapper"() {
+def "should repository interact exact 3 times"() {
     given:
-    List<String> list = Mock()
-    def wrapper = new ListWrapper(list)
+    Repository repository = Mock()
+    def service = new Service(repository)
 
     when:
-    wrapper.add("firstItem")
-    wrapper.add("secondItem")
-    wrapper.add("thirdItem")
+    service.saveItem("firstItem")
+    service.saveItem("secondItem")
+    service.saveItem("thirdItem")
 
     then:
-    3 * list.add(_ as String)
-    // or
-    (1..3) * list.add(_ as String)
-    // or
-    3 * list.add({ it.endsWith("Item") })
+    3 * repository.save(_ as String)
+}
+
+def "should repository interact between 1 and 3 times"() {
+    given:
+    Repository repository = Mock()
+    def service = new Service(repository)
+
+    when:
+    service.saveItem("firstItem")
+    service.saveItem("secondItem")
+    service.saveItem("thirdItem")
+
+    then:
+    (1..3) * repository.save(_ as String)
+}
+
+def "should repository interact exact 3 times when saving value that ends with Item"() {
+    given:
+    Repository repository = Mock()
+    def service = new Service(repository)
+
+    when:
+    service.saveItem("firstItem")
+    service.saveItem("secondItem")
+    service.saveItem("thirdItem")
+
+    then:
+    3 * repository.save({ it.endsWith("Item") })
 }
 ```
 
 This example shows, how we can handle conditions of invocation. Character `_` means any value. Sometimes it is needed to
 specify of type, then we have to use the keyword `as`. We can specify an inclusive range of invocation using round
-brackets.
-It is also possible to specify custom conditions, and how the input of a method should look like. One note here, in the
-example above
-Spock removes invocation after each usage, so we can't use all showed conditions in one feature method.
+brackets. It is also possible to specify custom conditions, and how the input of a method should look like.
 
 ### Why You should use it
 
 This framework provides all the features that can be found in JUnit, but it delivers in a more accessible and readable
-way. It works perfectly in data-driven tests, and it runs straight away in projects that are written in one of JVM
-languages. For more details check Spock [documentation](https://spockframework.org/spock/docs/2.3/all_in_one.html).
+way. If You have a lot of data-driven tests, Spock is one of the best choice to make, and it runs straight away in
+projects that are written in JVM languages. For more details check
+Spock [documentation](https://spockframework.org/spock/docs/2.3/all_in_one.html).
 
 # Instancio
 
@@ -201,7 +232,7 @@ record DeliveryItem(String id,
 Let's create a simple test that only creates `DeliveryItem` object:
 
 ```groovy
-def "create delivery item"() {
+def "should create delivery item"() {
     given:
     def delivery = createDeliveryItem()
 
@@ -254,7 +285,7 @@ problem.
 For instance, let's see how this test will look like when the power of Instancio is used:
 
 ```groovy
-def "create delivery item"() {
+def "should create delivery item"() {
     given:
     def delivery = Instancio.create(DeliveryItem.class)
 
@@ -272,6 +303,9 @@ something will change in domain classes, it will not break the test case.
 
 ### Features
 
+Creating objects ia a core functionality of a library. It uses reflection to instantiate classes, for no argument
+constructors it uses build-in Java mechanism, for other types of classes it uses other library called `Objensis` - this
+library wraps easy use in situations when e.g. class has required arguments.
 There are a lot of ways to create objects using this library, this section will be provided some features, that
 might be useful in any project.
 
@@ -385,7 +419,7 @@ One note, to use this library make sure, that the Docker service is up and runni
 ```groovy
 private NginxContainer nginx = new NginxContainer(DockerImageName.parse("nginx"))
 
-def "create nginx container"() {
+def "should create nginx container"() {
     given:
     def port = nginx.firstMappedPort
     def host = nginx.host
@@ -433,7 +467,7 @@ Nginx container should contain static resource on path `/hello-world.html`, let'
 ```groovy
 def helloWorldFile = "hello-world.html"
 
-def "create nginx container with mounted volume"() {
+def "should create nginx container with mounted volume"() {
     given:
     def port = nginx.firstMappedPort
     def host = nginx.host
@@ -458,7 +492,7 @@ our project:
 ```groovy
 def helloWorldFile = "hello-world.html"
 
-def "check nginx container logs"() {
+def "should check nginx container logs"() {
     given:
     def port = nginx.firstMappedPort
     def host = nginx.host
@@ -613,7 +647,7 @@ class ItemDaoTest extends ElasticContainerSpec {
         properties.add("elastic.host", elasticsearch::getHttpHostAddress)
     }
 
-    def "should properly find item by partial name"() {
+    def "should find item by partial name"() {
         given:
         def item = Instancio.create(Item.class)
         def savedItem = itemDao.save(item)
@@ -647,7 +681,7 @@ class PriceCalculatorSpockTest extends Specification {
     @Autowired
     private PriceCalculator calculator
 
-    def "should properly calculate price based on input"() {
+    def "should calculate price based on input"() {
         given:
         def items = [
                 ItemDto.builder()
@@ -692,7 +726,7 @@ class PriceCalculatorTest {
                     "SOCKS, 50, {}, 50",
             },
             emptyValue = "{}")
-    void shouldProperlyCalculatePrice(ItemType type, Double price, String code, Double afterDiscount) {
+    void shouldCalculatePrice(ItemType type, Double price, String code, Double afterDiscount) {
         // given
         List<ItemDto> items = List.of(ItemDto.builder()
                 .price(price)

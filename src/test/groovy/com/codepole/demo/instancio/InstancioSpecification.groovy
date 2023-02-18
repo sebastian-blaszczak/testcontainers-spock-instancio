@@ -13,7 +13,7 @@ import static org.instancio.Select.*
 
 class InstancioSpecification extends Specification {
 
-    def "create delivery item"() {
+    def "should create delivery item"() {
         given:
         def delivery = Instancio.create(DeliveryItem.class)
 

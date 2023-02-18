@@ -12,7 +12,7 @@ class PriceCalculatorSpockTest extends Specification {
     @Autowired
     private PriceCalculator calculator
 
-    def "should properly calculate price based on input"() {
+    def "should calculate price based on input"() {
         given:
         def items = [
                 ItemDto.builder()

@@ -36,7 +36,7 @@ class TestcontainersFeaturesSpecification extends Specification {
         nginx.getNetworkAliases().contains(network)
     }
 
-    def "create nginx container with mounted volume"() {
+    def "should create nginx container with mounted volume"() {
         given:
         def port = nginx.firstMappedPort
         def host = nginx.host
@@ -52,7 +52,7 @@ class TestcontainersFeaturesSpecification extends Specification {
         response.body().contains("This content is served using Nginx.")
     }
 
-    def "check nginx container logs"() {
+    def "should check nginx container logs"() {
         given:
         def port = nginx.firstMappedPort
         def host = nginx.host

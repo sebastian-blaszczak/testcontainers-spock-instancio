@@ -5,7 +5,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MathPowTest {
+class MathPowTest {
 
     @ParameterizedTest
     @CsvSource(
@@ -14,7 +14,7 @@ public class MathPowTest {
                     "5, 2, 25",
                     "6, 3, 216"
             })
-    void dataDrivenExponentiationCalculation(Integer base, Integer exponent, Double expected) {
+    void shouldCalculateThePowerOfTwoNumbers(Integer base, Integer exponent, Double expected) {
         // expect
         double result = Math.pow(base, exponent);
 

@@ -18,7 +18,7 @@ class SpockSpecification extends Specification {
         numbers = [0, 1, 1, 2, 3]
     }
 
-    def "exponentiation calculation"() {
+    def "should calculate power of two numbers"() {
         given:
         def base = 2
         def exponent = 3
@@ -30,7 +30,7 @@ class SpockSpecification extends Specification {
         result == 8
     }
 
-    def "data driven exponentiation calculation"() {
+    def "should calculate power of two numbers using data driven approach"() {
         expect:
         result == Math.pow(base, exponent)
 
@@ -41,32 +41,58 @@ class SpockSpecification extends Specification {
         6    | 3        | 216D
     }
 
-    def "interaction based test"() {
+    def "should repository interact once on save"() {
         given:
-        List<String> list = Mock()
-        def wrapper = new ListWrapper(list)
+        Repository repository = Mock()
+        def service = new Service(repository)
 
         when:
-        wrapper.add("item")
+        service.saveItem("item")
 
         then:
-        1 * list.add("item")
+        1 * repository.save("item")
     }
 
-    def "multiple interaction with wrapper"() {
+    def "should repository interact exact 3 times"() {
         given:
-        List<String> list = Mock()
-        def wrapper = new ListWrapper(list)
+        Repository repository = Mock()
+        def service = new Service(repository)
 
         when:
-        wrapper.add("firstItem")
-        wrapper.add("secondItem")
-        wrapper.add("thirdItem")
+        service.saveItem("firstItem")
+        service.saveItem("secondItem")
+        service.saveItem("thirdItem")
 
         then:
-        3 * list.add(_ as String)
-//        (1..3) * list.add(_ as String)
-//        3 * list.add({ it.endsWith("Item") })
+        3 * repository.save(_ as String)
+    }
+
+    def "should repository interact between 1 and 3 times"() {
+        given:
+        Repository repository = Mock()
+        def service = new Service(repository)
+
+        when:
+        service.saveItem("firstItem")
+        service.saveItem("secondItem")
+        service.saveItem("thirdItem")
+
+        then:
+        (1..3) * repository.save(_ as String)
+    }
+
+    def "should repository interact exact 3 times when saving value that ends with Item"() {
+        given:
+        Repository repository = Mock()
+        def service = new Service(repository)
+
+        when:
+        service.saveItem("firstItem")
+        service.saveItem("secondItem")
+        service.saveItem("thirdItem")
+
+        then:
+        3 * repository.save({ it.endsWith("Item") })
     }
 
 }
